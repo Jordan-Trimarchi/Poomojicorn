@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poop Emoji Collects Corn</title>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Poop emoji
+        const poopImg = new Image();
+        poopImg.src = 'https://cdn.shopify.com/s/files/1/1061/1924/products/Poop_Emoji_3a99e965-590d-44db-b674-95f434e36f67_large.png';
+        let poopX = 10;
+        let poopY = canvas.height - 100;
+        let poopWidth = 50;
+        let poopHeight = 50;
+
+        // Corn kernel
+        const cornImg = new Image();
+        cornImg.src = 'https://pngimg.com/uploads/corn/corn_PNG34995.png';
+        let cornX = Math.floor(Math.random() * (canvas.width - 50));
+        let cornY = 0;
+        let cornWidth = 50;
+        let cornHeight = 50;
+        let score = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(poopImg, poopX, poopY, poopWidth, poopHeight);
+            ctx.drawImage(cornImg, cornX, cornY, cornWidth, cornHeight);
+
+            // Move the corn kernel downwards
+            cornY += 3;
+
+            // Check if the poop emoji and corn kernel collide
+            if (poopX < cornX + cornWidth &&
+                poopX + poopWidth > cornX &&
+                poopY < cornY + cornHeight &&
+                poopY + poopHeight > cornY) {
+                // Collision detected, reset corn kernel
+                score++;
+                cornX = Math.floor(Math.random() * (canvas.width - 50));
+                cornY = 0;
+            }
+
+            // Display score
+            ctx.fillStyle = '#000';
+            ctx.font = '24px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 30);
+
+            requestAnimationFrame(draw);
+        }
+
+        // Move poop emoji left and right using arrow keys
+        document.addEventListener('keydown', (event) => {
+            switch (event.keyCode) {
+                case 37: // Left arrow
+                    poopX -= 10;
+                    break;
+                case 39: // Right arrow
+                    poopX += 10;
+                    break;
+            }
+        });
+
+        draw();
+    </script>
+</body>
+</html>
