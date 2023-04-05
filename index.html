@@ -1,72 +1,87 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Poop Emoji Collects Corn</title>
-</head>
-<body>
-    <canvas id="canvas" width="500" height="500"></canvas>
-
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Poop Emoji Game</title>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game-canvas" width="640" height="480"></canvas>
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
 
-        // Poop emoji
-        const poopImg = new Image();
-        poopImg.src = 'https://cdn.shopify.com/s/files/1/1061/1924/products/Poop_Emoji_3a99e965-590d-44db-b674-95f434e36f67_large.png';
-        let poopX = 10;
-        let poopY = canvas.height - 100;
-        let poopWidth = 50;
-        let poopHeight = 50;
+      const poopEmoji = '💩';
+      const poopSize = 64;
+      let poopX = canvas.width / 2 - poopSize / 2;
+      let poopY = canvas.height - poopSize;
 
-        // Corn kernel
-        const cornImg = new Image();
-        cornImg.src = 'https://pngimg.com/uploads/corn/corn_PNG34995.png';
-        let cornX = Math.floor(Math.random() * (canvas.width - 50));
-        let cornY = 0;
-        let cornWidth = 50;
-        let cornHeight = 50;
-        let score = 0;
+      let score = 0;
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(poopImg, poopX, poopY, poopWidth, poopHeight);
-            ctx.drawImage(cornImg, cornX, cornY, cornWidth, cornHeight);
+      let corns = [];
 
-            // Move the corn kernel downwards
-            cornY += 3;
+      function spawnCorn() {
+        const cornSize = 32;
+        const cornX = Math.random() * (canvas.width - cornSize);
+        const cornY = -cornSize;
+        const cornSpeed = Math.random() * 2 + 1;
+        corns.push({ x: cornX, y: cornY, size: cornSize, speed: cornSpeed });
+      }
 
-            // Check if the poop emoji and corn kernel collide
-            if (poopX < cornX + cornWidth &&
-                poopX + poopWidth > cornX &&
-                poopY < cornY + cornHeight &&
-                poopY + poopHeight > cornY) {
-                // Collision detected, reset corn kernel
-                score++;
-                cornX = Math.floor(Math.random() * (canvas.width - 50));
-                cornY = 0;
-            }
-
-            // Display score
-            ctx.fillStyle = '#000';
-            ctx.font = '24px Arial';
-            ctx.fillText(`Score: ${score}`, 10, 30);
-
-            requestAnimationFrame(draw);
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `${poopSize}px serif`;
+        ctx.fillText(poopEmoji, poopX, poopY);
+        ctx.font = '24px serif';
+        ctx.fillText(`Score: ${score}`, 10, 30);
+        for (let i = 0; i < corns.length; i++) {
+          ctx.font = `${corns[i].size}px serif`;
+          ctx.fillText('🌽', corns[i].x, corns[i].y);
         }
+      }
 
-        // Move poop emoji left and right using arrow keys
-        document.addEventListener('keydown', (event) => {
-            switch (event.keyCode) {
-                case 37: // Left arrow
-                    poopX -= 10;
-                    break;
-                case 39: // Right arrow
-                    poopX += 10;
-                    break;
-            }
-        });
+      function update() {
+        // Move poop
+        poopX = Math.min(Math.max(poopX, 0), canvas.width - poopSize);
+        // Move corns
+        for (let i = 0; i < corns.length; i++) {
+          corns[i].y += corns[i].speed;
+          // Check for collision
+          if (
+            corns[i].y + corns[i].size >= poopY &&
+            corns[i].x + corns[i].size >= poopX &&
+            corns[i].x <= poopX + poopSize
+          ) {
+            score++;
+            corns.splice(i, 1);
+          }
+        }
+        // Spawn new corns
+        if (Math.random() < 0.05) {
+          spawnCorn();
+        }
+      }
 
+      function loop() {
+        update();
         draw();
+        requestAnimationFrame(loop);
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.code === 'ArrowLeft') {
+          poopX -= 10;
+        } else if (event.code === 'ArrowRight') {
+          poopX += 10;
+        }
+      });
+
+      loop();
     </script>
-</body>
+  </body>
 </html>
