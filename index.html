@@ -46,8 +46,13 @@
       }
 
       function update() {
-        // Move poop
-        poopX = Math.min(Math.max(poopX, 0), canvas.width - poopSize);
+        // Move poop based on mouse position
+        canvas.addEventListener('mousemove', function(event) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = event.clientX - rect.left;
+          poopX = Math.min(Math.max(mouseX - poopSize / 2, 0), canvas.width - poopSize);
+        });
+        
         // Move corns
         for (let i = 0; i < corns.length; i++) {
           corns[i].y += corns[i].speed;
@@ -72,14 +77,6 @@
         draw();
         requestAnimationFrame(loop);
       }
-
-      document.addEventListener('keydown', (event) => {
-        if (event.code === 'ArrowLeft') {
-          poopX -= 10;
-        } else if (event.code === 'ArrowRight') {
-          poopX += 10;
-        }
-      });
 
       loop();
     </script>
